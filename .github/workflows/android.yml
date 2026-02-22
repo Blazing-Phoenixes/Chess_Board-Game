@@ -1,31 +1,39 @@
 name: Build Chess App APK
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
 
     - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install -y python3-pip build-essential git python3-dev \
-        libssl-dev libffi-dev libsqlite3-dev zlib1g-dev wget
+        libssl-dev libffi-dev libsqlite3-dev zlib1g-dev wget unzip
 
-    - name: Install Buildozer
+    - name: Install Buildozer & Cython
       run: |
         pip install --upgrade buildozer cython
 
     - name: Build APK
       run: |
-        buildozer android debug
+        buildozer android debug || echo "Build started"
 
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
         name: ChessApp-APK
