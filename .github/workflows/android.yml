@@ -36,7 +36,7 @@ jobs:
 
     - name: Upload APK
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ChessApp-APK
         path: bin/*.apk
