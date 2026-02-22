@@ -1,41 +1,52 @@
 name: Build Chess App APK
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK with Buildozer
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      # Step 1: Checkout repository
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y python3-pip build-essential git python3-dev \
-        libssl-dev libffi-dev libsqlite3-dev zlib1g-dev wget unzip
+      # Step 3: Install system dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-setuptools python3-wheel \
+                              build-essential git python3-dev \
+                              libssl-dev libffi-dev libsqlite3-dev zlib1g-dev \
+                              openjdk-11-jdk zipalign android-tools-adb wget unzip
 
-    - name: Install Buildozer
-      run: pip install --upgrade buildozer cython
+      # Step 4: Install Buildozer & Cython
+      - name: Install Buildozer
+        run: pip install --upgrade buildozer cython
 
-    # Removed "Initialize Buildozer" step because buildozer.spec already exists
+      # Step 5: Verify Buildozer
+      - name: Verify Buildozer
+        run: buildozer --version
 
-    - name: Build APK
-      run: buildozer android debug || echo "Build started"
+      # Step 6: Build the APK
+      - name: Build APK
+        run: buildozer android debug
 
-    - name: Upload APK
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: ChessApp-APK
-        path: bin/*.apk
+      # Step 7: Upload APK artifact
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChessApp-APK
+          path: bin/**/*.apk   # Catch APKs in any subfolder
