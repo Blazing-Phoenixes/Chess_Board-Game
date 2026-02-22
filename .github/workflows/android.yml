@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repo
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python
+      # 2️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Install system dependencies
+      # 3️⃣ Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
@@ -31,12 +31,12 @@ jobs:
                               libssl-dev libffi-dev libsqlite3-dev zlib1g-dev \
                               unzip wget openjdk-11-jdk zipalign android-tools-adb
 
-      # Step 4: Install Buildozer & Cython
+      # 4️⃣ Install Buildozer & Cython
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # Step 5: Install Android SDK command-line tools
-      - name: Install Android SDK and Build Tools
+      # 5️⃣ Install Android SDK and Build Tools
+      - name: Install Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
@@ -47,15 +47,15 @@ jobs:
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
           yes | sdkmanager --licenses
 
-      # Step 6: Verify Buildozer
+      # 6️⃣ Verify Buildozer
       - name: Verify Buildozer
         run: buildozer --version
 
-      # Step 7: Build APK
+      # 7️⃣ Build APK
       - name: Build APK
         run: buildozer android debug
 
-      # Step 8: Upload APK artifact
+      # 8️⃣ Upload APK artifact
       - name: Upload APK
         if: always()
         uses: actions/upload-artifact@v4
