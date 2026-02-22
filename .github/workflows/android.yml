@@ -35,7 +35,7 @@ jobs:
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # 5️⃣ Install Android SDK and Build Tools
+      # 5️⃣ Install Android SDK & Build Tools (stable)
       - name: Install Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
