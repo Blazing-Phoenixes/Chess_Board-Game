@@ -28,8 +28,7 @@ jobs:
     - name: Install Buildozer
       run: pip install --upgrade buildozer cython
 
-    - name: Initialize Buildozer
-      run: buildozer init
+    # Removed "Initialize Buildozer" step because buildozer.spec already exists
 
     - name: Build APK
       run: buildozer android debug || echo "Build started"
