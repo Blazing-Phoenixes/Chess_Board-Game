@@ -1,4 +1,4 @@
-name: Build Chess App APK
+name: Build Android APK
 
 on:
   push:
@@ -10,54 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Setup Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # 3. Install Linux dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk build-essential git python3-dev \
-            libssl-dev libffi-dev libsqlite3-dev zlib1g-dev unzip wget
+          sudo apt install -y zip unzip openjdk-17-jdk python3-pip git
 
-      # 4. Install Buildozer
       - name: Install Buildozer
-        run: pip install --upgrade buildozer cython
-
-      # 5. Install Android SDK
-      - name: Install Android SDK
         run: |
-          export ANDROID_HOME=$GITHUB_WORKSPACE/android-sdk
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
-          unzip tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          pip install --upgrade pip
+          pip install buildozer cython
 
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-
-          # Accept licenses automatically
-          yes | sdkmanager --licenses
-
-          # Install required packages
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
-
-      # 6. Build APK
       - name: Build APK
         run: |
-          export ANDROID_HOME=$GITHUB_WORKSPACE/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
           buildozer android debug
 
-      # 7. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ProfessionalChess-APK
+          name: chess-apk
           path: bin/*.apk
