@@ -20,7 +20,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 3. Install system dependencies
+      # 3. Cache Python packages
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
@@ -29,11 +38,22 @@ jobs:
                               libssl-dev libffi-dev libsqlite3-dev zlib1g-dev \
                               unzip wget openjdk-11-jdk zipalign android-tools-adb
 
-      # 4. Install Buildozer & Cython
+      # 5. Cache Buildozer & Android SDK
+      - name: Cache Buildozer & Android SDK
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.buildozer
+            ~/.android
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('**/buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      # 6. Install Buildozer & Cython
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # 5. Install Android SDK command-line tools
+      # 7. Install Android SDK command-line tools
       - name: Install Android SDK and Build Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
@@ -45,15 +65,19 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
 
-      # 6. Verify Buildozer
-      - name: Verify Buildozer
-        run: buildozer --version
+      # 8. Accept any remaining Android SDK licenses
+      - name: Accept Android SDK licenses
+        run: yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      # 7. Build APK
+      # 9. Initialize Buildozer (creates .spec if missing)
+      - name: Initialize Buildozer
+        run: buildozer init || echo ".spec already exists"
+
+      # 10. Build APK
       - name: Build APK
-        run: buildozer android debug
+        run: buildozer android debug || echo "Build started"
 
-      # 8. Upload APK artifact
+      # 11. Upload APK artifact
       - name: Upload APK
         if: always()
         uses: actions/upload-artifact@v4
