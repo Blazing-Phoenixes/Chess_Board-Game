@@ -2,7 +2,7 @@ name: Build Chess App APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -10,36 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1. Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Setup Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # Cache Buildozer and Android SDK
-      - name: Cache Buildozer & SDK
-        uses: actions/cache@v3
-        with:
-          path: |
-            .buildozer
-            android-sdk
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-
-      # Install Linux dependencies
+      # 3. Install Linux dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git python3-dev \
-              libssl-dev libffi-dev libsqlite3-dev zlib1g-dev \
-              unzip wget openjdk-11-jdk
+          sudo apt install -y openjdk-17-jdk build-essential git python3-dev \
+            libssl-dev libffi-dev libsqlite3-dev zlib1g-dev unzip wget
 
-      # Install Buildozer
+      # 4. Install Buildozer
       - name: Install Buildozer
         run: pip install --upgrade buildozer cython
 
-      # Install Android SDK
+      # 5. Install Android SDK
       - name: Install Android SDK
         run: |
           export ANDROID_HOME=$GITHUB_WORKSPACE/android-sdk
@@ -49,17 +41,21 @@ jobs:
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+          # Accept licenses automatically
           yes | sdkmanager --licenses
+
+          # Install required packages
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
 
-      # Build APK
+      # 6. Build APK
       - name: Build APK
         run: |
           export ANDROID_HOME=$GITHUB_WORKSPACE/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
           buildozer android debug
 
-      # Upload APK
+      # 7. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
