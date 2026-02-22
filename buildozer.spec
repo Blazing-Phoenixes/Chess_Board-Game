@@ -33,3 +33,10 @@ fullscreen = 0
 [buildozer]
 log_level = 2
 warn_on_root = 1
+
+# Android settings
+android.api = 33
+android.build_tools = 33.0.2
+android.ndk = 25b
+android.sdk_path = $HOME/android-sdk
+android.ndk_path = $HOME/android-sdk/ndk/25b
